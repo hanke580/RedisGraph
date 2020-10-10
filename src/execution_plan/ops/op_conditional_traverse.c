@@ -108,7 +108,7 @@ static OpResult CondTraverseInit(OpBase *opBase) {
 	CondTraverse *op = (CondTraverse *)opBase;
 	AST *ast = ExecutionPlan_GetAST(opBase->plan);
 	op->recordsCap = TraverseRecordCap(ast);
-	op->records = rm_calloc(op->recordsCap, sizeof(Record));
+	op->records = (Record*)rm_calloc(op->recordsCap, sizeof(Record));
 	return OP_OK;
 }
 

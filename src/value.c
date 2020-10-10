@@ -17,57 +17,67 @@
 #include "util/rmalloc.h"
 #include "datatypes/array.h"
 #include "datatypes/path/sipath.h"
+#include <iostream>
 
 static inline void _SIString_ToString(SIValue str, char **buf, size_t *bufferLen,
 									  size_t *bytesWritten) {
 	size_t strLen = strlen(str.stringval);
 	if(*bufferLen - *bytesWritten < strLen) {
 		*bufferLen += strLen;
-		*buf = rm_realloc(*buf, *bufferLen);
+		*buf = static_cast<char*>(rm_realloc(*buf, *bufferLen));
 	}
 	*bytesWritten += snprintf(*buf + *bytesWritten, *bufferLen, "%s", str.stringval);
 }
 
 SIValue SI_LongVal(int64_t i) {
-	return (SIValue) {
-		.longval = i, .type = T_INT64
-	};
+	SIValue res;
+	res.longval = i;
+	res.type = T_INT64;
+	return res;
 }
 
 SIValue SI_DoubleVal(double d) {
-	return (SIValue) {
-		.doubleval = d, .type = T_DOUBLE
-	};
+	SIValue res;
+	res.doubleval = d;
+	res.type = T_DOUBLE;
+	return res;
 }
 
 SIValue SI_NullVal(void) {
-	return (SIValue) {
-		.longval = 0, .type = T_NULL
-	};
+	SIValue res;
+	res.longval = 0;
+	res.type = T_NULL;
+	return res;
 }
 
 SIValue SI_BoolVal(int b) {
-	return (SIValue) {
-		.longval = b, .type = T_BOOL
-	};
+	SIValue res;
+	res.longval = b;
+	res.type = T_BOOL;
+	return res;
 }
 
 SIValue SI_PtrVal(void *v) {
-	return (SIValue) {
-		.ptrval = v, .type = T_PTR
-	};
+	SIValue res;
+	res.ptrval = v;
+	res.type = T_PTR;
+	return res;
 }
 
 SIValue SI_Node(void *n) {
-	return (SIValue) {
-		.ptrval = n, .type = T_NODE, .allocation = M_VOLATILE
-	};
+	SIValue res;
+	res.ptrval = n;
+	res.type = T_NODE;
+	res.allocation = M_VOLATILE;
+	return res;
 }
 
 SIValue SI_Edge(void *e) {
-	return (SIValue) {
-		.ptrval = e, .type = T_EDGE, .allocation = M_VOLATILE
-	};
+	SIValue res;
+	res.ptrval = e;
+	res.type = T_EDGE;
+	res.allocation = M_VOLATILE;
+	return res;
 }
 
 SIValue SI_Path(void *p) {
@@ -84,21 +94,27 @@ SIValue SI_EmptyArray() {
 }
 
 SIValue SI_DuplicateStringVal(const char *s) {
-	return (SIValue) {
-		.stringval = rm_strdup(s), .type = T_STRING, .allocation = M_SELF
-	};
+	SIValue res;
+	res.stringval = rm_strdup(s);
+	res.type = T_STRING;
+	res.allocation = M_SELF;
+	return res;
 }
 
 SIValue SI_ConstStringVal(char *s) {
-	return (SIValue) {
-		.stringval = s, .type = T_STRING, .allocation = M_CONST
-	};
+	SIValue res;
+	res.stringval = s;
+	res.type = T_STRING;
+	res.allocation = M_CONST;
+	return res;
 }
 
 SIValue SI_TransferStringVal(char *s) {
-	return (SIValue) {
-		.stringval = s, .type = T_STRING, .allocation = M_SELF
-	};
+	SIValue res;
+	res.stringval = s;
+	res.type = T_STRING;
+	res.allocation = M_SELF;
+	return res;
 }
 
 /* Make an SIValue that reuses the original's allocations, if any.
@@ -227,7 +243,7 @@ void SIValue_ToString(SIValue v, char **buf, size_t *bufferLen, size_t *bytesWri
 	// checkt for enough space
 	if(*bufferLen - *bytesWritten < 64) {
 		*bufferLen += 64;
-		*buf = rm_realloc(*buf, sizeof(char) * *bufferLen);
+		*buf = static_cast<char*>(rm_realloc(*buf, sizeof(char) * *bufferLen));
 	}
 
 	switch(v.type) {
@@ -244,10 +260,10 @@ void SIValue_ToString(SIValue v, char **buf, size_t *bufferLen, size_t *bytesWri
 		*bytesWritten += snprintf(*buf + *bytesWritten, *bufferLen, "%f", v.doubleval);
 		break;
 	case T_NODE:
-		Node_ToString(v.ptrval, buf, bufferLen, bytesWritten, ENTITY_ID);
+		Node_ToString(static_cast<const Node*>(v.ptrval), buf, bufferLen, bytesWritten, ENTITY_ID);
 		break;
 	case T_EDGE:
-		Edge_ToString(v.ptrval, buf, bufferLen, bytesWritten, ENTITY_ID);
+		Edge_ToString(static_cast<const Edge*>(v.ptrval), buf, bufferLen, bytesWritten, ENTITY_ID);
 		break;
 	case T_ARRAY:
 		SIArray_ToString(v, buf, bufferLen, bytesWritten);
@@ -330,7 +346,7 @@ void SIValue_StringJoin(SIValue *strings, unsigned int string_count, const char 
 static SIValue SIValue_ConcatString(const SIValue a, const SIValue b) {
 	size_t bufferLen = 512;
 	size_t argument_len = 0;
-	char *buffer = rm_calloc(bufferLen, sizeof(char));
+	char *buffer = static_cast<char*>(rm_calloc(bufferLen, sizeof(char)));
 	SIValue args[2] = {a, b};
 	SIValue_StringJoin(args, 2, "", &buffer, &bufferLen, &argument_len);
 	SIValue result = SI_DuplicateStringVal(buffer);
@@ -566,7 +582,7 @@ void SIValue_HashUpdate(SIValue v, XXH64_state_t *state) {
 		return;
 	case T_INT64:
 		// Change type to numeric.
-		t = SI_NUMERIC;
+		t = static_cast<SIType>(SI_NUMERIC);
 		XXH64_update(state, &t, sizeof(t));
 		XXH64_update(state, &v.longval, sizeof(v.longval));
 		return;
@@ -575,7 +591,7 @@ void SIValue_HashUpdate(SIValue v, XXH64_state_t *state) {
 		XXH64_update(state, &v.longval, sizeof(v.longval));
 		return;
 	case T_DOUBLE: {
-		t = SI_NUMERIC;
+		t = static_cast<SIType>(SI_NUMERIC);
 		XXH64_update(state, &t, sizeof(t));
 		// Check if the double value is actually an integer. If so, hash it as Long.
 		int64_t casted = (int64_t) v.doubleval;

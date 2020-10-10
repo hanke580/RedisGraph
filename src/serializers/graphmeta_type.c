@@ -52,12 +52,12 @@ static void _GraphMetaType_Free(void *value) {
 }
 
 int GraphMetaType_Register(RedisModuleCtx *ctx) {
-	RedisModuleTypeMethods tm = {.version = REDISMODULE_TYPE_METHOD_VERSION,
-								 .rdb_load = _GraphMetaType_RdbLoad,
-								 .rdb_save = _GraphMetaType_RdbSave,
-								 .aof_rewrite = _GraphMetaType_AofRewrite,
-								 .free = _GraphMetaType_Free
-								};
+	RedisModuleTypeMethods tm;
+	tm.version = REDISMODULE_TYPE_METHOD_VERSION;
+	tm.rdb_load = _GraphMetaType_RdbLoad;
+	tm.rdb_save = _GraphMetaType_RdbSave;
+	tm.aof_rewrite = _GraphMetaType_AofRewrite;
+	tm.free = _GraphMetaType_Free;
 
 	GraphMetaRedisModuleType = RedisModule_CreateDataType(ctx, "graphmeta",
 														  GRAPH_ENCODING_VERSION_LATEST, &tm);

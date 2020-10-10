@@ -270,7 +270,7 @@ char *AlgebraicExpression_ToString
 (
 	const AlgebraicExpression *exp  // Root node.
 ) {
-	char *buff = rm_calloc(1024, sizeof(char));
+	char *buff = static_cast<char*>(rm_calloc(1024, sizeof(char)));
 	_AlgebraicExpression_ToString(exp, buff);
 	return buff;
 }

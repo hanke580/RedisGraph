@@ -213,15 +213,15 @@ static AST_Validation _CypherWhitelist_ValidateQuery(const cypher_astnode_t *ele
 	if(type == CYPHER_AST_UNWIND) return AST_VALID;
 
 	// If the node is an operator call, validate that we support the operator type
-	const cypher_operator_t *operator = NULL;
+	const cypher_operator_t *operator_t = NULL;
 	if(type == CYPHER_AST_BINARY_OPERATOR) {
-		operator = cypher_ast_binary_operator_get_operator(elem);
+		operator_t = cypher_ast_binary_operator_get_operator(elem);
 	} else if(type == CYPHER_AST_UNARY_OPERATOR) {
-		operator = cypher_ast_unary_operator_get_operator(elem);
+		operator_t = cypher_ast_unary_operator_get_operator(elem);
 	}
-	if(operator) {
-		if(raxFind(_operator_whitelist, (unsigned char *)operator, sizeof(*operator)) == raxNotFound) {
-			QueryCtx_SetError("RedisGraph does not currently support %s", operator->str);
+	if(operator_t) {
+		if(raxFind(_operator_whitelist, (unsigned char *)operator_t, sizeof(*operator_t)) == raxNotFound) {
+			QueryCtx_SetError("RedisGraph does not currently support %s", operator_t->str);
 			return AST_INVALID;
 		}
 	}

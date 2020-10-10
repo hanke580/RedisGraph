@@ -7,7 +7,7 @@
 #include "all_paths.h"
 #include "../util/arr.h"
 #include "../util/rmalloc.h"
-
+#include <iostream>
 // Make sure context levels array have atleast 'level' entries,
 // Append given 'node' to given 'level' array.
 static void _AllPathsCtx_AddConnectionToLevel(AllPathsCtx *ctx, uint level, Node *node,
@@ -64,7 +64,7 @@ AllPathsCtx *AllPathsCtx_New(Node *src, Node *dst, Graph *g, int *relationIDs, i
 							 GRAPH_EDGE_DIR dir, unsigned int minLen, unsigned int maxLen) {
 	assert(src);
 
-	AllPathsCtx *ctx = rm_malloc(sizeof(AllPathsCtx));
+	AllPathsCtx *ctx = static_cast<AllPathsCtx*>(rm_malloc(sizeof(AllPathsCtx)));
 	ctx->g = g;
 	ctx->dir = dir;
 	// Cypher variable path "[:*min..max]"" specifies edge count

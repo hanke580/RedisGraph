@@ -17,7 +17,7 @@ rax *__aeRegisteredFuncs = NULL;
 
 AR_FuncDesc *AR_FuncDescNew(const char *name, AR_Func func, uint min_argc, uint max_argc,
 							SIType *types, bool reducible) {
-	AR_FuncDesc *desc = rm_malloc(sizeof(AR_FuncDesc));
+	AR_FuncDesc *desc = static_cast<AR_FuncDesc*>(rm_malloc(sizeof(AR_FuncDesc)));
 	desc->name = name;
 	desc->func = func;
 	desc->bfree = NULL;
@@ -46,7 +46,7 @@ AR_FuncDesc *AR_GetFunc(const char *func_name) {
 	str_tolower(func_name, lower_func_name, &lower_func_name_len);
 	void *f = raxFind(__aeRegisteredFuncs, (unsigned char *)lower_func_name, lower_func_name_len);
 
-	if(f != raxNotFound) return f;
+	if(f != raxNotFound) return static_cast<AR_FuncDesc*>(f);
 	return NULL;
 }
 
@@ -62,7 +62,7 @@ inline void AR_SetPrivateDataRoutines(AR_FuncDesc *func_desc, AR_Func_Free bfree
 
 AR_FuncDesc *AR_SetPrivateData(const AR_FuncDesc *orig, void *privdata) {
 	// Create a new function descriptor.
-	AR_FuncDesc *func = rm_malloc(sizeof(AR_FuncDesc));
+	AR_FuncDesc *func = static_cast<AR_FuncDesc*>(rm_malloc(sizeof(AR_FuncDesc)));
 	memcpy(func, orig, sizeof(AR_FuncDesc));
 
 	// Set the private data pointer.
@@ -74,7 +74,7 @@ AR_FuncDesc *AR_SetPrivateData(const AR_FuncDesc *orig, void *privdata) {
 AR_FuncDesc *AR_CloneFuncDesc(const AR_FuncDesc *orig) {
 	ASSERT(orig->bclone);
 	// Perform a shallow copy of the input function descriptor.
-	AR_FuncDesc *clone = rm_malloc(sizeof(AR_FuncDesc));
+	AR_FuncDesc *clone = static_cast<AR_FuncDesc*>(rm_malloc(sizeof(AR_FuncDesc)));
 	memcpy(clone, orig, sizeof(AR_FuncDesc));
 	// Clone the function's private data.
 	clone->privdata = orig->bclone(orig->privdata);

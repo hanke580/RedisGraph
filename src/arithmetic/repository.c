@@ -10,6 +10,7 @@
 #include <ctype.h>
 #include <assert.h>
 #include "../util/strutil.h"
+#include <iostream>
 
 static rax *__aggRegisteredFuncs = NULL;
 
@@ -24,7 +25,7 @@ void Agg_RegisterFunc(const char *name, AggFuncInit f) {
 	char lower_func_name[32];
 	size_t lower_func_name_len = 32;
 	str_tolower(name, lower_func_name, &lower_func_name_len);
-	raxInsert(__aggRegisteredFuncs, (unsigned char *)lower_func_name, lower_func_name_len, f, NULL);
+	raxInsert(__aggRegisteredFuncs, (unsigned char *)lower_func_name, lower_func_name_len, (void *)f, NULL);
 }
 
 bool Agg_FuncExists(const char *name) {
@@ -44,7 +45,7 @@ void Agg_GetFunc(const char *name, bool distinct, AggCtx **ctx) {
 	char lower_func_name[32];
 	size_t lower_func_name_len = 32;
 	str_tolower(name, lower_func_name, &lower_func_name_len);
-	AggFuncInit f = raxFind(__aggRegisteredFuncs, (unsigned char *)lower_func_name,
+	AggFuncInit f = (AggFuncInit)raxFind(__aggRegisteredFuncs, (unsigned char *)lower_func_name,
 							lower_func_name_len);
 	if(f != raxNotFound) *ctx = f(distinct);
 }

@@ -20,7 +20,7 @@
 
 // Allocate a new ExecutionPlan segment.
 inline ExecutionPlan *ExecutionPlan_NewEmptyExecutionPlan(void) {
-	ExecutionPlan *plan = rm_calloc(1, sizeof(ExecutionPlan));
+	ExecutionPlan *plan = static_cast<ExecutionPlan*>(rm_calloc(1, sizeof(ExecutionPlan)));
 	return plan;
 }
 

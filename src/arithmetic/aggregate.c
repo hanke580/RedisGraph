@@ -10,11 +10,11 @@
 AggCtx *Agg_NewCtx(StepFunc step, FinalizeFunc finalize, AggCtx_PrivateData_New privateDataNew,
 				   AggCtx_PrivateData_Free privateDataFree, bool isDistinct) {
 	// Allocate.
-	AggCtx *ac = rm_malloc(sizeof(AggCtx));
+	AggCtx *ac = static_cast<AggCtx*>(rm_malloc(sizeof(AggCtx)));
 	// Set methods.
 	ac->Step = step;
 	ac->Finalize = finalize;
-	ac->AggCtx_PrivateData_New = privateDataNew;
+	ac->AggCtx_PrivateData_New = (privateDataNew);
 	ac->AggCtx_PrivateData_Free = privateDataFree;
 	// Initialize members.
 	ac->isDistinct = isDistinct;

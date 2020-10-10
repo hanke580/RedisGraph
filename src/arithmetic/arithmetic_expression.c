@@ -45,7 +45,7 @@ static void _AR_EXP_UpdatePropIdx(AR_ExpNode *root, const Record r) {
 }
 
 static AR_ExpNode *_AR_EXP_CloneOperand(AR_ExpNode *exp) {
-	AR_ExpNode *clone = rm_calloc(1, sizeof(AR_ExpNode));
+	AR_ExpNode *clone = static_cast<AR_ExpNode*>(rm_calloc(1, sizeof(AR_ExpNode)));
 	clone->type = AR_EXP_OPERAND;
 	switch(exp->operand.type) {
 	case AR_EXP_CONSTANT:
@@ -78,11 +78,11 @@ static AR_ExpNode *_AR_EXP_CloneOperand(AR_ExpNode *exp) {
 static AR_ExpNode *_AR_EXP_NewOpNode(const char *func_name, uint child_count) {
 	assert(func_name);
 
-	AR_ExpNode *node = rm_calloc(1, sizeof(AR_ExpNode));
+	AR_ExpNode *node = static_cast<AR_ExpNode*>(rm_calloc(1, sizeof(AR_ExpNode)));
 	node->type = AR_EXP_OP;
 	node->op.func_name = func_name;
 	node->op.child_count = child_count;
-	node->op.children = rm_malloc(child_count * sizeof(AR_ExpNode *));
+	node->op.children = static_cast<AR_ExpNode**>(rm_malloc(child_count * sizeof(AR_ExpNode *)));
 	return node;
 }
 
@@ -148,7 +148,7 @@ bool AR_EXP_PerformDistinct(AR_ExpNode *op) {
 }
 
 static inline AR_ExpNode *_AR_EXP_InitializeOperand(AR_OperandNodeType type) {
-	AR_ExpNode *node = rm_calloc(1, sizeof(AR_ExpNode));
+	AR_ExpNode *node = static_cast<AR_ExpNode*>(rm_calloc(1, sizeof(AR_ExpNode)));
 	node->type = AR_EXP_OPERAND;
 	node->operand.type = type;
 	return node;
@@ -430,8 +430,8 @@ static AR_EXP_Result _AR_EXP_EvaluateVariadic(AR_ExpNode *node, const Record r, 
 
 static AR_EXP_Result _AR_EXP_EvaluateParam(AR_ExpNode *node, SIValue *result) {
 	rax *params = QueryCtx_GetParams();
-	AR_ExpNode *param_node = raxFind(params, (unsigned char *)node->operand.param_name,
-									 strlen(node->operand.param_name));
+	AR_ExpNode *param_node = static_cast<AR_ExpNode*>(raxFind(params, (unsigned char *)node->operand.param_name,
+									 strlen(node->operand.param_name)));
 	if(param_node == raxNotFound) {
 		// Set the query-level error.
 		QueryCtx_SetError("Missing parameters");
@@ -598,12 +598,12 @@ void _AR_EXP_ToString(const AR_ExpNode *root, char **str, size_t *str_size,
 	if(*str == NULL) {
 		*bytes_written = 0;
 		*str_size = 128;
-		*str = rm_calloc(*str_size, sizeof(char));
+		*str = static_cast<char*>(rm_calloc(*str_size, sizeof(char)));
 	}
 
 	if((*str_size - strlen(*str)) < 64) {
 		*str_size += 128;
-		*str = rm_realloc(*str, sizeof(char) * *str_size);
+		*str = static_cast<char*>(rm_realloc(*str, sizeof(char) * *str_size));
 	}
 	/* Concat Op. */
 	if(root->type == AR_EXP_OP) {
@@ -621,7 +621,7 @@ void _AR_EXP_ToString(const AR_ExpNode *root, char **str, size_t *str_size,
 			/* Make sure there are at least 64 bytes in str. */
 			if((*str_size - strlen(*str)) < 64) {
 				*str_size += 128;
-				*str = rm_realloc(*str, sizeof(char) * *str_size);
+				*str = static_cast<char*>(rm_realloc(*str, sizeof(char) * *str_size));
 			}
 
 			*bytes_written += sprintf((*str + *bytes_written), " %c ", binary_op);
@@ -637,7 +637,7 @@ void _AR_EXP_ToString(const AR_ExpNode *root, char **str, size_t *str_size,
 				/* Make sure there are at least 64 bytes in str. */
 				if((*str_size - strlen(*str)) < 64) {
 					*str_size += 128;
-					*str = rm_realloc(*str, sizeof(char) * *str_size);
+					*str = static_cast<char*>(rm_realloc(*str, sizeof(char) * *str_size));
 				}
 				if(i < (root->op.child_count - 1)) {
 					*bytes_written += sprintf((*str + *bytes_written), ",");

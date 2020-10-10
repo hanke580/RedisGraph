@@ -86,7 +86,7 @@ OpBase *NewMergeOp(const ExecutionPlan *plan, EntityUpdateEvalCtx *on_match,
 
 	/* Merge is an operator with two or three children. They will be created outside of here,
 	 * as with other multi-stream operators (see CartesianProduct and ValueHashJoin). */
-	OpMerge *op = rm_calloc(1, sizeof(OpMerge));
+	OpMerge *op = (OpMerge*)rm_calloc(1, sizeof(OpMerge));
 	op->stats = NULL;
 	op->on_match = on_match;
 	op->on_create = on_create;

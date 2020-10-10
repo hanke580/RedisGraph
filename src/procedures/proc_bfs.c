@@ -98,7 +98,7 @@ static ProcedureResult Proc_BFS_Invoke(ProcedureCtx *ctx,
 	// Process inputs
 	//--------------------------------------------------------------------------
 
-	Node *source_node = args[0].ptrval;
+	Node *source_node = (Node *)args[0].ptrval;
 	int64_t max_level = args[1].longval;
 	const char *reltype = SIValue_IsNull(args[2]) ? NULL : args[2].stringval;
 
@@ -190,7 +190,7 @@ static SIValue *Proc_BFS_Step(ProcedureCtx *ctx) {
 		if(bfs_ctx->yield_edges) {
 			GrB_Index parent_id;
 			// Find the parent of the reached node.
-			GrB_Info res = GrB_Vector_extractElement(&parent_id, bfs_ctx->parents, id);
+			GrB_Info res = GrB_Vector_extractElement_UINT64(&parent_id, bfs_ctx->parents, id);
 			ASSERT(res == GrB_SUCCESS);
 			parent_id --; // Decrement the parent ID by 1 to correct 1-indexing.
 			// Retrieve edges connecting the parent node to the current node.
@@ -230,7 +230,7 @@ static ProcedureResult Proc_BFS_Free(ProcedureCtx *ctx) {
 
 static BFSCtx *_Build_Private_Data() {
 	// Set up the BFS context.
-	BFSCtx *pdata = rm_calloc(1, sizeof(BFSCtx));
+	BFSCtx *pdata = (BFSCtx*)rm_calloc(1, sizeof(BFSCtx));
 	pdata->n = 0;
 	pdata->nodes = GrB_NULL;
 	pdata->depleted = false;

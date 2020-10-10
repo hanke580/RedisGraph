@@ -10,7 +10,7 @@
 #include "../util/rax_extensions.h"
 
 GraphEncodeContext *GraphEncodeContext_New() {
-	GraphEncodeContext *ctx = rm_calloc(1, sizeof(GraphEncodeContext));
+	GraphEncodeContext *ctx = (GraphEncodeContext*)rm_calloc(1, sizeof(GraphEncodeContext));
 	ctx->meta_keys = raxNew();
 	GraphEncodeContext_Reset(ctx);
 	return ctx;

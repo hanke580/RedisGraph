@@ -69,7 +69,7 @@ ProcedureCtx *Proc_Get(const char *proc_name) {
 	ProcGenerator gen = raxFind(__procedures, (unsigned char *)proc_name_lowercase,
 	  			proc_name_len);
 	if(gen == raxNotFound) return NULL;
-	ProcedureCtx *ctx = gen(NULL, NULL);
+	ProcedureCtx *ctx = gen();
 
 	// Set procedure state to not initialized.
 	ctx->state = PROCEDURE_NOT_INIT;
@@ -137,7 +137,7 @@ bool Proc_ReadOnly(const char *proc_name) {
 	if(gen == raxNotFound) return false; // Invalid procedure specified, handled elsewhere.
 	/* TODO It would be preferable to be able to determine whether a procedure is read-only
 	 * without creating its entire context; this is wasteful. */
-	ProcedureCtx *ctx = gen(NULL, NULL);
+	ProcedureCtx *ctx = gen();
 	bool read_only = ctx->readOnly;
 	Proc_Free(ctx);
 	return read_only;

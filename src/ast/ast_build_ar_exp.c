@@ -200,25 +200,25 @@ static AR_ExpNode *_AR_EXP_FromNullExpression() {
 static AR_ExpNode *_AR_EXP_FromUnaryOpExpression(const cypher_astnode_t *expr) {
 	AR_ExpNode *op = NULL;
 	const cypher_astnode_t *arg = cypher_ast_unary_operator_get_argument(expr); // CYPHER_AST_EXPRESSION
-	const cypher_operator_t *operator = cypher_ast_unary_operator_get_operator(expr);
+	const cypher_operator_t *operator_t = cypher_ast_unary_operator_get_operator(expr);
 
-	if(operator == CYPHER_OP_UNARY_MINUS) {
+	if(operator_t == CYPHER_OP_UNARY_MINUS) {
 		// This expression can be something like -3 or -a.val
 		// In the former case, we'll reduce the tree to a constant after building it fully.
 		op = AR_EXP_NewOpNodeFromAST(OP_MULT, 2);
 		op->op.children[0] = AR_EXP_NewConstOperandNode(SI_LongVal(-1));
 		op->op.children[1] = _AR_EXP_FromExpression(arg);
-	} else if(operator == CYPHER_OP_UNARY_PLUS) {
+	} else if(operator_t == CYPHER_OP_UNARY_PLUS) {
 		/* This expression is something like +3 or +a.val.
 		 * I think the + can always be safely ignored. */
 		op = _AR_EXP_FromExpression(arg);
-	} else if(operator == CYPHER_OP_NOT) {
+	} else if(operator_t == CYPHER_OP_NOT) {
 		op = AR_EXP_NewOpNodeFromAST(OP_NOT, 1);
 		op->op.children[0] = _AR_EXP_FromExpression(arg);
-	} else if(operator == CYPHER_OP_IS_NULL) {
+	} else if(operator_t == CYPHER_OP_IS_NULL) {
 		op = AR_EXP_NewOpNodeFromAST(OP_IS_NULL, 1);
 		op->op.children[0] = _AR_EXP_FromExpression(arg);
-	} else if(operator == CYPHER_OP_IS_NOT_NULL) {
+	} else if(operator_t == CYPHER_OP_IS_NOT_NULL) {
 		op = AR_EXP_NewOpNodeFromAST(OP_IS_NOT_NULL, 1);
 		op->op.children[0] = _AR_EXP_FromExpression(arg);
 	} else {
@@ -229,8 +229,8 @@ static AR_ExpNode *_AR_EXP_FromUnaryOpExpression(const cypher_astnode_t *expr) {
 }
 
 static AR_ExpNode *_AR_EXP_FromBinaryOpExpression(const cypher_astnode_t *expr) {
-	const cypher_operator_t *operator = cypher_ast_binary_operator_get_operator(expr);
-	AST_Operator operator_enum = AST_ConvertOperatorNode(operator);
+	const cypher_operator_t *operator_t = cypher_ast_binary_operator_get_operator(expr);
+	AST_Operator operator_enum = AST_ConvertOperatorNode(operator_t);
 	// Arguments are of type CYPHER_AST_EXPRESSION
 	AR_ExpNode *op = AR_EXP_NewOpNodeFromAST(operator_enum, 2);
 	const cypher_astnode_t *lhs_node = cypher_ast_binary_operator_get_argument1(expr);
@@ -247,8 +247,8 @@ static AR_ExpNode *_AR_EXP_FromComparisonExpression(const cypher_astnode_t *expr
 	if(length > 1) {
 		op = AR_EXP_NewOpNodeFromAST(OP_AND, length);
 		for(uint i = 0; i < length; i++) {
-			const cypher_operator_t *operator = cypher_ast_comparison_get_operator(expr, i);
-			AST_Operator operator_enum = AST_ConvertOperatorNode(operator);
+			const cypher_operator_t *operator_t = cypher_ast_comparison_get_operator(expr, i);
+			AST_Operator operator_enum = AST_ConvertOperatorNode(operator_t);
 			const cypher_astnode_t *lhs_node = cypher_ast_comparison_get_argument(expr, i);
 			const cypher_astnode_t *rhs_node = cypher_ast_comparison_get_argument(expr, i + 1);
 
@@ -258,8 +258,8 @@ static AR_ExpNode *_AR_EXP_FromComparisonExpression(const cypher_astnode_t *expr
 			op->op.children[i] = inner_op;
 		}
 	} else {
-		const cypher_operator_t *operator = cypher_ast_comparison_get_operator(expr, 0);
-		AST_Operator operator_enum = AST_ConvertOperatorNode(operator);
+		const cypher_operator_t *operator_t = cypher_ast_comparison_get_operator(expr, 0);
+		AST_Operator operator_enum = AST_ConvertOperatorNode(operator_t);
 		op = AR_EXP_NewOpNodeFromAST(operator_enum, 2);
 		const cypher_astnode_t *lhs_node = cypher_ast_comparison_get_argument(expr, 0);
 		const cypher_astnode_t *rhs_node = cypher_ast_comparison_get_argument(expr, 1);

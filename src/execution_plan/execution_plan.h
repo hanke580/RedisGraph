@@ -12,7 +12,7 @@
 #include "../filter_tree/filter_tree.h"
 #include "../util/object_pool/object_pool.h"
 
-typedef struct ExecutionPlan ExecutionPlan;
+// typedef struct ExecutionPlan ExecutionPlan;
 
 struct ExecutionPlan {
 	OpBase *root;                       // Root operation of overall ExecutionPlan.

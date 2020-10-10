@@ -13,9 +13,8 @@
 #include "node.h"
 #include "edge.h"
 
-SIValue *PROPERTY_NOTFOUND = &(SIValue) {
-	.longval = 0, .type = T_NULL
-};
+SIValue PROPERTY_NOTFOUND_ = SI_NullVal();
+SIValue *PROPERTY_NOTFOUND = &PROPERTY_NOTFOUND_;
 
 /* Removes entity's property. */
 static void _GraphEntity_RemoveProperty(const GraphEntity *e, Attribute_ID attr_id) {
@@ -135,7 +134,7 @@ void GraphEntity_ToString(const GraphEntity *e, char **buffer, size_t *bufferLen
 	// space allocation
 	if(*bufferLen - *bytesWritten < 64)  {
 		*bufferLen += 64;
-		*buffer = rm_realloc(*buffer, sizeof(char) * *bufferLen);
+		*buffer = static_cast<char*>(rm_realloc(*buffer, sizeof(char) * *bufferLen));
 	}
 
 	// get open an close symbols
@@ -178,7 +177,7 @@ void GraphEntity_ToString(const GraphEntity *e, char **buffer, size_t *bufferLen
 				size_t relationshipLen = strlen(edge->relationship);
 				if(*bufferLen - *bytesWritten < relationshipLen) {
 					*bufferLen += relationshipLen;
-					*buffer = rm_realloc(*buffer, sizeof(char) * *bufferLen);
+					*buffer = static_cast<char*>(rm_realloc(*buffer, sizeof(char) * *bufferLen));
 				}
 				*bytesWritten += snprintf(*buffer + *bytesWritten, *bufferLen, ":%s", edge->relationship);
 			}
@@ -198,7 +197,7 @@ void GraphEntity_ToString(const GraphEntity *e, char **buffer, size_t *bufferLen
 	// check for enough space for close with closing symbol
 	if(*bufferLen - *bytesWritten < 2) {
 		*bufferLen += 2;
-		*buffer = rm_realloc(*buffer, sizeof(char) * *bufferLen);
+		*buffer = static_cast<char*>(rm_realloc(*buffer, sizeof(char) * *bufferLen));
 	}
 	*bytesWritten += snprintf(*buffer + *bytesWritten, *bufferLen, "%s", closeSymbole);
 }

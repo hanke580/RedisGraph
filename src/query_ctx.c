@@ -16,10 +16,10 @@ extern RedisModuleType *GraphContextRedisModuleType;
 pthread_key_t _tlsQueryCtxKey;  // Thread local storage query context key.
 
 static inline QueryCtx *_QueryCtx_GetCtx(void) {
-	QueryCtx *ctx = pthread_getspecific(_tlsQueryCtxKey);
+	QueryCtx *ctx = static_cast<QueryCtx*>(pthread_getspecific(_tlsQueryCtxKey));
 	if(!ctx) {
 		// Set a new thread-local QueryCtx if one has not been created.
-		ctx = rm_calloc(1, sizeof(QueryCtx));
+		ctx = static_cast<QueryCtx*>(rm_calloc(1, sizeof(QueryCtx)));
 		pthread_setspecific(_tlsQueryCtxKey, ctx);
 	}
 	return ctx;
@@ -39,7 +39,7 @@ static char *_QueryCtx_GetError(void) {
 
 /* rax callback routine for freeing computed parameter values. */
 static void _ParameterFreeCallback(void *param_val) {
-	AR_EXP_Free(param_val);
+	AR_EXP_Free(static_cast<AR_ExpNode*>(param_val));
 }
 
 bool QueryCtx_Init(void) {
@@ -171,11 +171,11 @@ bool QueryCtx_LockForCommit(void) {
 	// Lock GIL.
 	RedisModuleCtx *redis_ctx = ctx->global_exec_ctx.redis_ctx;
 	GraphContext *gc = ctx->gc;
-	RedisModuleString *graphID = RedisModule_CreateString(redis_ctx, gc->graph_name,
-														  strlen(gc->graph_name));
+	RedisModuleString *graphID = static_cast<RedisModuleString*>(RedisModule_CreateString(redis_ctx, gc->graph_name,
+														  strlen(gc->graph_name)));
 	_QueryCtx_ThreadSafeContextLock(ctx);
 	// Open key and verify.
-	RedisModuleKey *key = RedisModule_OpenKey(redis_ctx, graphID, REDISMODULE_WRITE);
+	RedisModuleKey *key = static_cast<RedisModuleKey*>(RedisModule_OpenKey(redis_ctx, graphID, REDISMODULE_WRITE));
 	RedisModule_FreeString(redis_ctx, graphID);
 	if(RedisModule_KeyType(key) == REDISMODULE_KEYTYPE_EMPTY) {
 		QueryCtx_SetError("Encountered an empty key when opened key %s", ctx->gc->graph_name);

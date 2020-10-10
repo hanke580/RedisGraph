@@ -344,9 +344,9 @@ static AST_Validation _Validate_ReusedEdges(const cypher_astnode_t *node, rax *e
 
 		if(type == CYPHER_AST_IDENTIFIER) {
 			const char *alias = cypher_ast_identifier_get_name(child);
-			int new = raxInsert(edge_aliases, (unsigned char *)alias, strlen(alias), NULL,
+			int new_t = raxInsert(edge_aliases, (unsigned char *)alias, strlen(alias), NULL,
 								NULL);
-			if(!new) {
+			if(!new_t) {
 				char *err = NULL;
 				QueryCtx_SetError("Cannot use the same relationship variable '%s' for multiple patterns.", alias);
 				return AST_INVALID;

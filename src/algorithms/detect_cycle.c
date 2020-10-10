@@ -57,9 +57,9 @@ bool IsAcyclicGraph(const QueryGraph *qg) {
 	}
 
 	// Cleanup.
-	GrB_free(&m);
-	GrB_free(&c);
-	GrB_free(&t);
+	GrB_Matrix_free(&m);
+	GrB_Matrix_free(&c);
+	GrB_Matrix_free(&t);
 
 	return acyclic;
 }

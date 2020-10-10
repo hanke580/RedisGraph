@@ -7,7 +7,7 @@
 #pragma once
 
 #include "../ops/op.h"
-typedef struct ExecutionPlan ExecutionPlan;
+// typedef struct ExecutionPlan ExecutionPlan;
 
 //------------------------------------------------------------------------------
 // Helper functions to move and analyze operations in an ExecutionPlan.

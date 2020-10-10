@@ -46,9 +46,9 @@ static int _RenameGraphHandler(RedisModuleCtx *ctx, int type, const char *event,
 							   RedisModuleString *key_name) {
 	if(type != REDISMODULE_NOTIFY_GENERIC) return REDISMODULE_OK;
 	if(strcasecmp(event, "RENAME_TO") == 0) {
-		RedisModuleKey *key = RedisModule_OpenKey(ctx, key_name, REDISMODULE_WRITE);
+		RedisModuleKey *key = static_cast<RedisModuleKey*>(RedisModule_OpenKey(ctx, key_name, REDISMODULE_WRITE));
 		if(RedisModule_ModuleTypeGetType(key) == GraphContextRedisModuleType) {
-			GraphContext *gc = RedisModule_ModuleTypeGetValue(key);
+			GraphContext *gc = static_cast<GraphContext*>(RedisModule_ModuleTypeGetValue(key));
 			size_t len;
 			const char *new_name = RedisModule_StringPtrLen(key_name, &len);
 			GraphContext_Rename(gc, new_name);
@@ -108,7 +108,7 @@ static void _CreateGraphMetaKeys(RedisModuleCtx *ctx, GraphContext *gc) {
 		}
 		const char *key_name = RedisModule_StringPtrLen(meta_rm_string, NULL);
 		GraphEncodeContext_AddMetaKey(gc->encoding_context, key_name);
-		RedisModuleKey *key = RedisModule_OpenKey(ctx, meta_rm_string, REDISMODULE_WRITE);
+		RedisModuleKey *key = static_cast<RedisModuleKey*>(RedisModule_OpenKey(ctx, meta_rm_string, REDISMODULE_WRITE));
 		// Set value in key.
 		RedisModule_ModuleTypeSetValue(key, GraphMetaRedisModuleType, gc);
 		RedisModule_CloseKey(key);
@@ -129,7 +129,7 @@ static void _DeleteGraphMetaKeys(RedisModuleCtx *ctx, GraphContext *gc, bool dec
 	key_count = array_len(keys);
 	for(uint i = 0; i < key_count; i++) {
 		RedisModuleString *meta_rm_string = RedisModule_CreateStringPrintf(ctx, "%s", keys[i]);
-		RedisModuleKey *key = RedisModule_OpenKey(ctx, meta_rm_string, REDISMODULE_WRITE);
+		RedisModuleKey *key = static_cast<RedisModuleKey*>(RedisModule_OpenKey(ctx, meta_rm_string, REDISMODULE_WRITE));
 		RedisModule_DeleteKey(key);
 		RedisModule_CloseKey(key);
 		RedisModule_FreeString(ctx, meta_rm_string);
@@ -212,7 +212,7 @@ static void RG_AfterForkChild() {
 	/* Restrict GraphBLAS to use a single thread this is done for 2 reasons:
 	 * 1. save resources.
 	 * 2. avoid a bug in GNU OpenMP which hangs when performing parallel loop in forked process. */
-	GxB_set(GxB_NTHREADS, 1);
+	GxB_Global_Option_set(static_cast<GxB_Option_Field>(GxB_NTHREADS), 1);
 
 	/* Mark that the child is a forked process so that it doesn't attempt invalid
 	 * accesses of POSIX primitives it doesn't own. */

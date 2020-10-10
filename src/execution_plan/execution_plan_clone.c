@@ -10,18 +10,20 @@
 #include "../util/rax_extensions.h"
 #include "execution_plan_build/execution_plan_modify.h"
 
-static ExecutionPlan *_ClonePlanInternals(const ExecutionPlan *template) {
+
+
+static ExecutionPlan *_ClonePlanInternals(const ExecutionPlan *template_) {
 	ExecutionPlan *clone = ExecutionPlan_NewEmptyExecutionPlan();
 
-	clone->record_map = raxClone(template->record_map);
-	if(template->ast_segment) clone->ast_segment = AST_ShallowCopy(template->ast_segment);
-	if(template->query_graph) {
-		QueryGraph_ResolveUnknownRelIDs(template->query_graph);
-		clone->query_graph = QueryGraph_Clone(template->query_graph);
+	clone->record_map = raxClone(template_->record_map);
+	if(template_->ast_segment) clone->ast_segment = AST_ShallowCopy(template_->ast_segment);
+	if(template_->query_graph) {
+		QueryGraph_ResolveUnknownRelIDs(template_->query_graph);
+		clone->query_graph = QueryGraph_Clone(template_->query_graph);
 	}
 	// TODO improve QueryGraph logic so that we do not need to store or clone connected_components.
-	if(template->connected_components) {
-		array_clone_with_cb(clone->connected_components, template->connected_components, QueryGraph_Clone);
+	if(template_->connected_components) {
+		array_clone_with_cb(clone->connected_components, template_->connected_components, QueryGraph_Clone);
 	}
 
 	// Temporarily set the thread-local AST to be the one referenced by this ExecutionPlan segment.
@@ -29,6 +31,8 @@ static ExecutionPlan *_ClonePlanInternals(const ExecutionPlan *template) {
 
 	return clone;
 }
+
+
 
 static OpBase *_CloneOpTree(OpBase *template_parent, OpBase *template_current,
 							OpBase *clone_parent) {
@@ -54,8 +58,8 @@ static OpBase *_CloneOpTree(OpBase *template_parent, OpBase *template_current,
 	return clone_current;
 }
 
-static ExecutionPlan *_ExecutionPlan_Clone(const ExecutionPlan *template) {
-	OpBase *clone_root = _CloneOpTree(NULL, template->root, NULL);
+static ExecutionPlan *_ExecutionPlan_Clone(const ExecutionPlan *template_) {
+	OpBase *clone_root = _CloneOpTree(NULL, template_->root, NULL);
 	// The "master" execution plan is the one constructed with the root op.
 	ExecutionPlan *clone = (ExecutionPlan *)clone_root->plan;
 	// The root op is currently NULL; set it now.
@@ -67,13 +71,13 @@ static ExecutionPlan *_ExecutionPlan_Clone(const ExecutionPlan *template) {
 /* This function clones the input ExecutionPlan by recursively visiting its tree of ops.
  * When an op is encountered that was constructed as part of a different ExecutionPlan segment, that segment
  * and its internal members (FilterTree, record mapping, query graphs, and AST segment) are also cloned. */
-ExecutionPlan *ExecutionPlan_Clone(const ExecutionPlan *template) {
-	ASSERT(template != NULL);
+ExecutionPlan *ExecutionPlan_Clone(const ExecutionPlan *template_) {
+	ASSERT(template_ != NULL);
 	// Store the original AST pointer.
 	AST *master_ast = QueryCtx_GetAST();
 	// Verify that the execution plan template is not prepared yet.
-	ASSERT(template->prepared == false && "Execution plan cloning should be only on templates");
-	ExecutionPlan *clone = _ExecutionPlan_Clone(template);
+	ASSERT(template_->prepared == false && "Execution plan cloning should be only on templates");
+	ExecutionPlan *clone = _ExecutionPlan_Clone(template_);
 	// Restore the original AST pointer.
 	QueryCtx_SetAST(master_ast);
 	return clone;

@@ -97,7 +97,7 @@ static OpResult ExpandIntoInit(OpBase *opBase) {
 	OpExpandInto *op = (OpExpandInto *)opBase;
 	AST *ast = ExecutionPlan_GetAST(opBase->plan);
 	op->recordsCap = TraverseRecordCap(ast);
-	op->records = rm_calloc(op->recordsCap, sizeof(Record));
+	op->records = (Record*)rm_calloc(op->recordsCap, sizeof(Record));
 	return OP_OK;
 }
 

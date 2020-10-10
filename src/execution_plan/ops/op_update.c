@@ -167,10 +167,10 @@ static void _groupUpdateExps(OpUpdate *op, EntityUpdateEvalCtx *update_ctxs) {
 		EntityUpdateEvalCtx *current = &update_ctxs[i];
 		if(!prev || current->record_idx != prev->record_idx) {
 			// Encountered a diffrent entity being updated; create a new context.
-			EntityUpdateCtx new_ctx = { .alias = current->alias,
-										.record_idx = current->record_idx,
-										.updates = array_new(PendingUpdateCtx, 1),
-										.exps = array_new(EntityUpdateEvalCtx, 1),
+			EntityUpdateCtx new_ctx = { record_idx : current->record_idx,
+										alias : current->alias,
+										exps : array_new(EntityUpdateEvalCtx, 1),
+										updates : array_new(PendingUpdateCtx, 1),
 									  };
 
 			// Append the new context to the array of contexts.
@@ -189,7 +189,7 @@ static void _groupUpdateExps(OpUpdate *op, EntityUpdateEvalCtx *update_ctxs) {
 }
 
 OpBase *NewUpdateOp(const ExecutionPlan *plan, EntityUpdateEvalCtx *update_exps) {
-	OpUpdate *op = rm_calloc(1, sizeof(OpUpdate));
+	OpUpdate *op = (OpUpdate*)rm_calloc(1, sizeof(OpUpdate));
 	op->records = NULL;
 	op->update_ctxs = NULL;
 	op->updates_commited = false;
@@ -275,12 +275,11 @@ static void _EvalEntityUpdates(EntityUpdateCtx *ctx, GraphContext *gc,
 			}
 		}
 
-		PendingUpdateCtx update = {
-			.entity_type = type,
-			.new_value = new_value,
-			.update_index = update_index,
-			.attr_id = update_ctx->attribute_id,
-		};
+		PendingUpdateCtx update;
+		update.entity_type = type;
+		update.update_index = update_index;
+		update.new_value = new_value;
+		update.attr_id = update_ctx->attribute_id;
 
 		if(type == GETYPE_EDGE) {
 			// Add the edge to the update context.

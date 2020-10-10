@@ -364,10 +364,10 @@
 
 #define LAGRAPH_FREE_ALL    \
 {                           \
-    GrB_free (&v) ;         \
-    GrB_free (&t) ;         \
-    GrB_free (&q) ;         \
-    GrB_free (&pi) ;        \
+    GrB_Vector_free (&v) ;         \
+    GrB_Vector_free (&t) ;         \
+    GrB_Vector_free (&q) ;         \
+    GrB_Vector_free (&pi) ;        \
 }
 
 #define LAGRAPH_ERROR(message,info)                                         \
@@ -453,14 +453,14 @@ GrB_Info LAGraph_bfs_pushpull   // push-pull BFS, or push-only if AT = NULL
 	if(!vsparse) {
 		// v is expected to have many entries, so convert v to dense.
 		// If the guess is wrong, v can be made dense later on.
-		GrB_assign(v, NULL, NULL, 0, GrB_ALL, n, NULL) ;
+		GrB_Vector_assign(v, NULL, NULL, 0, GrB_ALL, n, NULL) ;
 	}
 
 	GrB_Semiring first_semiring, second_semiring ;
 	if(compute_tree) {
 		// create an integer vector q, and set q(source) to source+1
 		GrB_Vector_new(&q, int_type, n) ;
-		GrB_Vector_setElement(q, source + 1, source) ;
+		GrB_Vector_setElement_INT16(q, source + 1, source) ;
 
 		if(n > INT32_MAX) {
 			// terminates as soon as it finds any parent; nondeterministic
@@ -476,14 +476,14 @@ GrB_Info LAGraph_bfs_pushpull   // push-pull BFS, or push-only if AT = NULL
 		GrB_Vector_new(&pi, int_type, n) ;
 		if(!vsparse) {
 			// make pi a dense vector of all zeros
-			GrB_assign(pi, NULL, NULL, 0, GrB_ALL, n, NULL) ;
+			GrB_Vector_assign(pi, NULL, NULL, 0, GrB_ALL, n, NULL) ;
 		}
 		// pi (source) = source+1 denotes a root of the BFS tree
-		GrB_Vector_setElement(pi, source + 1, source) ;
+		GrB_Vector_setElement_INT16(pi, source + 1, source) ;
 	} else {
 		// create a boolean vector q, and set q(source) to true
 		GrB_Vector_new(&q, GrB_BOOL, n) ;
-		GrB_Vector_setElement(q, true, source) ;
+		GrB_Vector_setElement_BOOL(q, true, source) ;
 
 		// terminates as soon as it finds any pair
 		first_semiring  = GxB_ANY_PAIR_BOOL ;
@@ -507,7 +507,7 @@ GrB_Info LAGraph_bfs_pushpull   // push-pull BFS, or push-only if AT = NULL
 		//----------------------------------------------------------------------
 
 		// v<q> = level: set v(i) = level for all nodes i in q
-		GrB_assign(v, q, NULL, level, GrB_ALL, n, desc_s) ;
+		GrB_Vector_assign_INT64(v, q, NULL, level, GrB_ALL, n, desc_s) ;
 
 		//----------------------------------------------------------------------
 		// check if done
@@ -525,13 +525,13 @@ GrB_Info LAGraph_bfs_pushpull   // push-pull BFS, or push-only if AT = NULL
 			// If this case is triggered, it would have been faster to pass in
 			// vsparse = false on input.
 			// v <!v> = 0
-			GrB_assign(v, v, NULL, 0, GrB_ALL, n, desc_sc) ;
+			GrB_Vector_assign(v, v, NULL, 0, GrB_ALL, n, desc_sc) ;
 			GrB_Vector_nvals(&ignore, v) ;
 
 			if(compute_tree) {
 				// Convert pi from sparse to dense, to speed up the work.
 				// pi<!pi> = 0
-				GrB_assign(pi, pi, NULL, 0, GrB_ALL, n, desc_sc) ;
+				GrB_Vector_assign(pi, pi, NULL, 0, GrB_ALL, n, desc_sc) ;
 				GrB_Vector_nvals(&ignore, pi) ;
 			}
 
@@ -578,7 +578,7 @@ GrB_Info LAGraph_bfs_pushpull   // push-pull BFS, or push-only if AT = NULL
 			// q(i) currently contains the parent of node i in tree (off by one
 			// so it won't have any zero values, for valued mask).
 			// pi<q> = q
-			GrB_assign(pi, q, NULL, q, GrB_ALL, n, desc_s) ;
+			GrB_Vector_assign(pi, q, NULL, q, GrB_ALL, n, desc_s) ;
 
 			//------------------------------------------------------------------
 			// replace q with current node numbers

@@ -21,7 +21,7 @@ typedef struct {
 #define GE_NEW_NODE()			\
 (Node) {						\
 	.entity = NULL,				\
-	.id = INVALID_ENTITY_ID,	\
+	.id = static_cast<EntityID>(INVALID_ENTITY_ID),	\
 	.label = NULL,				\
 	.labelID = GRAPH_NO_LABEL	\
 }
@@ -30,7 +30,7 @@ typedef struct {
 #define GE_NEW_LABELED_NODE(l_str, l_id)	\
 (Node) {									\
 	.entity = NULL,							\
-	.id = INVALID_ENTITY_ID,				\
+	.id = static_cast<EntityID>(INVALID_ENTITY_ID),				\
 	.label = (l_str),						\
 	.labelID = (l_id)						\
 }											\

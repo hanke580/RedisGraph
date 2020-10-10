@@ -192,7 +192,7 @@ uint64_t _countRelationshipEdges(GrB_Matrix M) {
 	GrB_Matrix_reduce_UINT64(&edges, GrB_NULL,
 							 GxB_PLUS_UINT64_MONOID, A, GrB_NULL);
 
-	GrB_free(&A);
+	GrB_Matrix_free(&A);
 	return edges;
 }
 

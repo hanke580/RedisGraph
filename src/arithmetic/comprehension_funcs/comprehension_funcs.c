@@ -77,8 +77,8 @@ SIValue AR_ANY(SIValue *argv, int argc) {
 	 * The current Record.
 	 * The function context. */
 	SIValue list = argv[0];
-	Record outer_record = argv[1].ptrval;
-	ListComprehensionCtx *ctx = argv[2].ptrval;
+	Record outer_record = (Record)argv[1].ptrval;
+	ListComprehensionCtx *ctx = (ListComprehensionCtx *)argv[2].ptrval;
 
 	// On the first invocation, build the local Record.
 	if(ctx->local_record == NULL) _PopulateComprehensionCtx(ctx, outer_record);
@@ -110,8 +110,8 @@ SIValue AR_ALL(SIValue *argv, int argc) {
 	 * The current Record.
 	 * The function context. */
 	SIValue list = argv[0];
-	Record outer_record = argv[1].ptrval;
-	ListComprehensionCtx *ctx = argv[2].ptrval;
+	Record outer_record = (Record)argv[1].ptrval;
+	ListComprehensionCtx *ctx = (ListComprehensionCtx *)argv[2].ptrval;
 
 	// On the first invocation, build the local Record.
 	if(ctx->local_record == NULL) _PopulateComprehensionCtx(ctx, outer_record);

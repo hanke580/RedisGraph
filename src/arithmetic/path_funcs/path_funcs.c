@@ -20,7 +20,7 @@
  * Even indices members are either representing the value of a single edge,
  * or an sipath, in case of variable length traversal. */
 SIValue AR_TOPATH(SIValue *argv, int argc) {
-	const cypher_astnode_t *ast_path = argv[0].ptrval;
+	const cypher_astnode_t *ast_path = static_cast<const cypher_astnode_t *>(argv[0].ptrval);
 	uint nelements = cypher_ast_pattern_path_nelements(ast_path);
 	assert(argc == (nelements + 1));
 
@@ -83,22 +83,22 @@ void Register_PathFuncs() {
 
 	types = array_new(SIType, 2);
 	types = array_append(types, T_PTR);
-	types = array_append(types, T_NULL | T_NODE | T_EDGE | T_PATH);
+	types = (SIType*)(array_append(types, static_cast<SIType>(T_NULL | T_NODE | T_EDGE | T_PATH)));
 	func_desc = AR_FuncDescNew("topath", AR_TOPATH, 1, VAR_ARG_LEN, types, false);
 	AR_RegFunc(func_desc);
 
 	types = array_new(SIType, 1);
-	types = array_append(types, T_NULL | T_PATH);
+	types = (SIType*)(array_append(types, static_cast<SIType>(T_NULL | T_PATH)));
 	func_desc = AR_FuncDescNew("nodes", AR_PATH_NODES, 1, 1, types, false);
 	AR_RegFunc(func_desc);
 
 	types = array_new(SIType, 1);
-	types = array_append(types, T_NULL | T_PATH);
+	types = (SIType*)(array_append(types, static_cast<SIType>(T_NULL | T_PATH)));
 	func_desc = AR_FuncDescNew("relationships", AR_PATH_RELATIONSHIPS, 1, 1, types, false);
 	AR_RegFunc(func_desc);
 
 	types = array_new(SIType, 1);
-	types = array_append(types, T_NULL | T_PATH);
+	types = (SIType*)(array_append(types, static_cast<SIType>(T_NULL | T_PATH)));
 	func_desc = AR_FuncDescNew("length", AR_PATH_LENGTH, 1, 1, types, false);
 	AR_RegFunc(func_desc);
 }

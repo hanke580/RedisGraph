@@ -24,7 +24,7 @@ SIValue AR_ID(SIValue *argv, int argc) {
 SIValue AR_LABELS(SIValue *argv, int argc) {
 	if(SI_TYPE(argv[0]) == T_NULL) return SI_NullVal();
 	char *label = "";
-	Node *node = argv[0].ptrval;
+	Node *node = (Node*)argv[0].ptrval;
 	GraphContext *gc = QueryCtx_GetGraphCtx();
 	Graph *g = gc->g;
 	int labelID = Graph_GetNodeLabel(g, ENTITY_GET_ID(node));
@@ -36,7 +36,7 @@ SIValue AR_LABELS(SIValue *argv, int argc) {
 SIValue AR_TYPE(SIValue *argv, int argc) {
 	if(SI_TYPE(argv[0]) == T_NULL) return SI_NullVal();
 	char *type = "";
-	Edge *e = argv[0].ptrval;
+	Edge *e = (Edge *)argv[0].ptrval;
 	GraphContext *gc = QueryCtx_GetGraphCtx();
 	int id = Graph_GetEdgeRelation(gc->g, e);
 	if(id != GRAPH_NO_RELATION) type = gc->relation_schemas[id]->name;

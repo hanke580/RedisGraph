@@ -26,7 +26,7 @@ Record Record_New(rax *mapping) {
 	uint rec_size = sizeof(_Record);
 	rec_size += sizeof(Entry) * entries_count;
 
-	Record r = rm_calloc(1, rec_size);
+	Record r = (Record)rm_calloc(1, rec_size);
 	r->mapping = mapping;
 
 	return r;

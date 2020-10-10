@@ -197,7 +197,7 @@ static inline array_t array_ensure_len(array_t arr, size_t len) {
 #define array_append(arr, x)                       \
   ({                                               \
     (arr) = (__typeof__(arr))array_grow((arr), 1); \
-    array_tail((arr)) = (x);                       \
+    array_tail((arr)) = (__typeof__(*arr))(x);                       \
     (arr);                                         \
   })
 

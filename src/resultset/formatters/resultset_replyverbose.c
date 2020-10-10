@@ -152,7 +152,7 @@ static void _ResultSet_VerboseReplyWithEdge(RedisModuleCtx *ctx, GraphContext *g
 
 static void _ResultSet_VerboseReplyWithArray(RedisModuleCtx *ctx, SIValue array) {
 	size_t bufferLen = 512;
-	char *str = rm_calloc(bufferLen, sizeof(char));
+	char *str = static_cast<char*>(rm_calloc(bufferLen, sizeof(char)));
 	size_t bytesWrriten = 0;
 	SIValue_ToString(array, &str, &bufferLen, &bytesWrriten);
 	RedisModule_ReplyWithStringBuffer(ctx, str, bytesWrriten);

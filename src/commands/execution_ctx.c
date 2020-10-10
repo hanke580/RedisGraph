@@ -17,7 +17,7 @@ static ExecutionType _GetExecutionTypeFromAST(AST *ast) {
 }
 
 static ExecutionCtx *_ExecutionCtx_New(AST *ast, ExecutionPlan *plan, ExecutionType exec_type) {
-	ExecutionCtx *exec_ctx = rm_calloc(1, sizeof(ExecutionCtx));
+	ExecutionCtx *exec_ctx = static_cast<ExecutionCtx*>(rm_calloc(1, sizeof(ExecutionCtx)));
 	exec_ctx->ast = ast;
 	exec_ctx->plan = plan;
 	exec_ctx->exec_type = exec_type;
@@ -62,7 +62,7 @@ static AST *_ExecutionCtx_ParseAST(const char *query_string,
 
 ExecutionCtx ExecutionCtx_FromQuery(const char *query) {
 	// Have an invalid ctx for errors.
-	ExecutionCtx invalid_ctx = {.ast = NULL, .plan = NULL, .cached = false, .exec_type = EXECUTION_TYPE_INVALID};
+	ExecutionCtx invalid_ctx = {ast : NULL, cached : false, plan : NULL, exec_type : EXECUTION_TYPE_INVALID};
 	const char *query_string;
 	// Parse and validate parameters only. Extract query string.
 	cypher_parse_result_t *params_parse_result = parse_params(query, &query_string);
@@ -99,7 +99,7 @@ ExecutionCtx ExecutionCtx_FromQuery(const char *query) {
 		plan = ExecutionPlan_Clone(plan);
 		ast = AST_ShallowCopy(ast);
 	}
-	ExecutionCtx ctx = {.ast = ast, .plan = plan, .exec_type = exec_type, .cached = false};
+	ExecutionCtx ctx = {ast : ast, cached : false, plan : plan, exec_type : exec_type};
 	return ctx;
 }
 

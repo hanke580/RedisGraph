@@ -17,13 +17,14 @@ static inline EdgeCreateCtx _NewEdgeCreateCtx(GraphContext *gc, const QGEdge *e,
 											  const cypher_astnode_t *edge) {
 	const cypher_astnode_t *props = cypher_ast_rel_pattern_get_properties(edge);
 
-	EdgeCreateCtx new_edge = {	.alias = e->alias,
-		                        .relation = e->reltypes[0],
-								.reltypeId = e->reltypeIDs[0],
-								.properties = PropertyMap_New(gc, props),
-								.src = e->src->alias,
-								.dest = e->dest->alias
-							 };
+	EdgeCreateCtx new_edge;
+	new_edge.alias = e->alias;
+	new_edge.relation = e->reltypes[0];
+	new_edge.reltypeId = e->reltypeIDs[0];
+	new_edge.properties = PropertyMap_New(gc, props);
+	new_edge.src = e->src->alias;
+	new_edge.dest = e->dest->alias;
+
 	return new_edge;
 }
 
@@ -31,11 +32,12 @@ static inline NodeCreateCtx _NewNodeCreateCtx(GraphContext *gc, const QGNode *n,
 											  const cypher_astnode_t *ast_node) {
 	const cypher_astnode_t *ast_props = cypher_ast_node_pattern_get_properties(ast_node);
 
-	NodeCreateCtx new_node = {  .alias = n->alias,
-		                        .label = n->label,
-								.labelId = n->labelID,
-								.properties = PropertyMap_New(gc, ast_props)
-							 };
+	NodeCreateCtx new_node;
+	new_node.alias = n->alias;
+	new_node.label = n->label;
+	new_node.labelId = n->labelID;
+	new_node.properties = PropertyMap_New(gc, ast_props);
+							 
 
 	return new_node;
 }
@@ -68,10 +70,10 @@ static EntityUpdateEvalCtx _NewUpdateCtx(GraphContext *gc, const cypher_astnode_
 
 	AR_EXP_Free(entity);
 
-	EntityUpdateEvalCtx update_ctx = { .alias = alias,
-									   .attribute_id = attribute_id,
-									   .exp = exp
-									 };
+	EntityUpdateEvalCtx update_ctx; 
+	update_ctx.alias = alias;
+	update_ctx.attribute_id = attribute_id;
+	update_ctx.exp = exp;
 	return update_ctx;
 }
 

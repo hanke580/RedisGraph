@@ -143,7 +143,7 @@ ProcedureResult Proc_PagerankInvoke(ProcedureCtx *ctx,
 			GrB_Descriptor_set(desc, GrB_INP0, GrB_TRAN);
 			info = GrB_transpose(reduced, GrB_NULL, GrB_NULL, r, desc);
 			ASSERT(info == GrB_SUCCESS);
-			GrB_free(&desc);
+			GrB_Descriptor_free(&desc);
 		}
 
 		r = reduced;
@@ -160,7 +160,7 @@ ProcedureResult Proc_PagerankInvoke(ProcedureCtx *ctx,
 	}
 
 	// Clean up.
-	if(free_r) GrB_free(&r);
+	if(free_r) GrB_Matrix_free(&r);
 
 	// Update context.
 	pdata->n = n;

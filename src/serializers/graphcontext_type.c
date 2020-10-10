@@ -74,12 +74,12 @@ static void _GraphContextType_Free(void *value) {
 }
 
 int GraphContextType_Register(RedisModuleCtx *ctx) {
-	RedisModuleTypeMethods tm = {.version = REDISMODULE_TYPE_METHOD_VERSION,
-								 .rdb_load = _GraphContextType_RdbLoad,
-								 .rdb_save = _GraphContextType_RdbSave,
-								 .aof_rewrite = _GraphContextType_AofRewrite,
-								 .free = _GraphContextType_Free,
-								};
+	RedisModuleTypeMethods tm;
+	tm.version = REDISMODULE_TYPE_METHOD_VERSION;
+	tm.rdb_load = _GraphContextType_RdbLoad;
+	tm.rdb_save = _GraphContextType_RdbSave;
+	tm.aof_rewrite = _GraphContextType_AofRewrite;
+	tm.free = _GraphContextType_Free;
 
 	if(Redis_Version_GreaterOrEqual(6, 0, 0)) {
 		tm.aux_save = _GraphContextType_AuxSave;

@@ -17,7 +17,7 @@ struct AggCtx {
 	SIValue result;
 	int (*Step)(struct AggCtx *ctx, SIValue *argv, int argc);
 	int (*Finalize)(struct AggCtx *ctx);
-	void *(*AggCtx_PrivateData_New)();
+	void *(*AggCtx_PrivateData_New)(AggCtx *ctx);
 	void (*AggCtx_PrivateData_Free)(struct AggCtx *ctx);
 	bool isDistinct;
 };

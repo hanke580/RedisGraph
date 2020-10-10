@@ -124,7 +124,7 @@ static GrB_Matrix _Eval_Add(const AlgebraicExpression *exp, GrB_Matrix res) {
 	}
 
 	if(inter != GrB_NULL) GrB_Matrix_free(&inter);
-	if(desc != GrB_NULL) GrB_free(&desc);
+	if(desc != GrB_NULL) GrB_Descriptor_free(&desc);
 	return res;
 }
 
@@ -211,7 +211,7 @@ static GrB_Matrix _Eval_Mul(const AlgebraicExpression *exp, GrB_Matrix res) {
 		if(nvals == 0) break;
 	}
 
-	if(desc != GrB_NULL) GrB_free(&desc);
+	if(desc != GrB_NULL) GrB_Descriptor_free(&desc);
 
 	return res;
 }

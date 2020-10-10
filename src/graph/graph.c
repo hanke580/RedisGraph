@@ -90,7 +90,7 @@ bool _select_op_free_edge(GrB_Index i, GrB_Index j, GrB_Index nrows, GrB_Index n
 
 // Creates a new matrix;
 static RG_Matrix RG_Matrix_New(GrB_Type data_type, GrB_Index nrows, GrB_Index ncols) {
-	RG_Matrix matrix = rm_calloc(1, sizeof(_RG_Matrix));
+	RG_Matrix matrix = static_cast<RG_Matrix>(rm_calloc(1, sizeof(_RG_Matrix)));
 	GrB_Info matrix_res = GrB_Matrix_new(&matrix->grb_matrix, data_type, nrows, ncols);
 	assert(matrix_res == GrB_SUCCESS);
 	int mutex_res = pthread_mutex_init(&matrix->mutex, NULL);
@@ -687,7 +687,7 @@ int Graph_DeleteEdge(Graph *g, Edge *e) {
 	if(Config_MaintainTranspose()) TR = Graph_GetTransposedRelationMatrix(g, r);
 
 	// Test to see if edge exists.
-	info = GrB_Matrix_extractElement(&edge_id, R, src_id, dest_id);
+	info = GrB_Matrix_extractElement_UINT64(&edge_id, R, src_id, dest_id);
 	if(info != GrB_SUCCESS) return 0;
 
 	if(SINGLE_EDGE(edge_id)) {
@@ -701,7 +701,7 @@ int Graph_DeleteEdge(Graph *g, Edge *e) {
 		for(int i = 0; i < relationCount; i++) {
 			if(i == r) continue;
 			M = Graph_GetRelationMatrix(g, i);
-			info = GrB_Matrix_extractElement(&x, M, src_id, dest_id);
+			info = GrB_Matrix_extractElement_UINT64(&x, M, src_id, dest_id);
 			if(info == GrB_SUCCESS) {
 				connected = true;
 				break;
@@ -743,13 +743,13 @@ int Graph_DeleteEdge(Graph *g, Edge *e) {
 		if(array_len(edges) == 1) {
 			edge_id = edges[0];
 			array_free(edges);
-			GrB_Matrix_setElement(R, SET_MSB(edge_id), src_id, dest_id);
+			GrB_Matrix_setElement_UINT64(R, SET_MSB(edge_id), src_id, dest_id);
 		}
 
 		if(TR) {
 			/* We must make the matching updates to the transposed matrix.
 			 * First, extract the element that is known to be an edge array. */
-			info = GrB_Matrix_extractElement(edges, TR, dest_id, src_id);
+			info = GrB_Matrix_extractElement_UINT64(edges, TR, dest_id, src_id);
 			assert(info == GrB_SUCCESS);
 			// Replace the deleted edge with the last edge in the matrix.
 			edges[i] = edges[edge_count - 1];
@@ -758,7 +758,7 @@ int Graph_DeleteEdge(Graph *g, Edge *e) {
 			if(array_len(edges) == 1) {
 				edge_id = edges[0];
 				array_free(edges);
-				GrB_Matrix_setElement(TR, SET_MSB(edge_id), dest_id, src_id);
+				GrB_Matrix_setElement_UINT64(TR, SET_MSB(edge_id), dest_id, src_id);
 			}
 		}
 	}
@@ -800,7 +800,7 @@ static void _Graph_FreeRelationMatrices(Graph *g) {
 	for(uint i = 0; i < relationCount; i++) {
 		RG_Matrix M = g->relations[i];
 		// Use the edge deletion Select operator to free all edge arrays within the adjacency matrix.
-		GxB_select(M->grb_matrix, GrB_NULL, GrB_NULL, _select_delete_edges, M->grb_matrix, thunk, GrB_NULL);
+		GxB_Matrix_select(M->grb_matrix, GrB_NULL, GrB_NULL, _select_delete_edges, M->grb_matrix, thunk, GrB_NULL);
 
 		// Free the matrix itself.
 		RG_Matrix_Free(M);
@@ -808,14 +808,14 @@ static void _Graph_FreeRelationMatrices(Graph *g) {
 		// Perform the same update to transposed matrices.
 		if(Config_MaintainTranspose()) {
 			RG_Matrix TM = g->t_relations[i];
-			GxB_select(TM->grb_matrix, GrB_NULL, GrB_NULL, _select_delete_edges, TM->grb_matrix, thunk,
+			GxB_Matrix_select(TM->grb_matrix, GrB_NULL, GrB_NULL, _select_delete_edges, TM->grb_matrix, thunk,
 					   GrB_NULL);
 			// Free the matrix itself.
 			RG_Matrix_Free(TM);
 		}
 	}
 
-	GrB_free(&thunk);
+	GxB_Scalar_free(&thunk);
 }
 
 static void _BulkDeleteNodes(Graph *g, Node *nodes, uint node_count,
@@ -914,7 +914,7 @@ static void _BulkDeleteNodes(Graph *g, Node *nodes, uint node_count,
 
 		/* Free each multi edge array entry in A
 		 * Call _select_op_free_edge on each entry of A. */
-		GxB_select(A, GrB_NULL, GrB_NULL, _select_delete_edges, A, thunk, GrB_NULL);
+		GxB_Matrix_select(A, GrB_NULL, GrB_NULL, _select_delete_edges, A, thunk, GrB_NULL);
 
 		// Clear the relation matrix.
 		GrB_Descriptor_set(desc, GrB_MASK, GrB_COMP);
@@ -950,7 +950,7 @@ static void _BulkDeleteNodes(Graph *g, Node *nodes, uint node_count,
 
 			/* Free each multi edge array entry in A
 			 * Call _select_op_free_edge on each entry of A. */
-			GxB_select(A, GrB_NULL, GrB_NULL, _select_delete_edges, A, thunk, GrB_NULL);
+			GxB_Matrix_select(A, GrB_NULL, GrB_NULL, _select_delete_edges, A, thunk, GrB_NULL);
 
 			// Clear the relation matrix.
 			GrB_Descriptor_set(desc, GrB_MASK, GrB_COMP);
@@ -974,11 +974,11 @@ static void _BulkDeleteNodes(Graph *g, Node *nodes, uint node_count,
 	}
 
 	// Clean up.
-	GrB_free(&A);
-	GrB_free(&desc);
-	GrB_free(&Mask);
-	GrB_free(&thunk);
-	GrB_free(&Nodes);
+	GrB_Matrix_free(&A);
+	GrB_Descriptor_free(&desc);
+	GrB_Matrix_free(&Mask);
+	GxB_Scalar_free(&thunk);
+	GrB_Matrix_free(&Nodes);
 	GxB_MatrixTupleIter_free(adj_iter);
 	GxB_MatrixTupleIter_free(tadj_iter);
 }
@@ -999,7 +999,7 @@ static void _BulkDeleteEdges(Graph *g, Edge *edges, size_t edge_count) {
 		EdgeID edge_id;
 		GrB_Matrix R = Graph_GetRelationMatrix(g, r);  // Relation matrix.
 		GrB_Matrix TR = Config_MaintainTranspose() ? Graph_GetTransposedRelationMatrix(g, r) : NULL;
-		GrB_Matrix_extractElement(&edge_id, R, src_id, dest_id);
+		GrB_Matrix_extractElement_UINT64(&edge_id, R, src_id, dest_id);
 
 		if(SINGLE_EDGE(edge_id)) {
 			update_adj_matrices = true;
@@ -1037,13 +1037,13 @@ static void _BulkDeleteEdges(Graph *g, Edge *edges, size_t edge_count) {
 			if(array_len(multi_edges) == 1) {
 				edge_id = multi_edges[0];
 				array_free(multi_edges);
-				GrB_Matrix_setElement(R, SET_MSB(edge_id), src_id, dest_id);
+				GrB_Matrix_setElement_UINT64(R, SET_MSB(edge_id), src_id, dest_id);
 			}
 
 			if(TR) {
 				/* We must make the matching updates to the transposed matrix.
 				 * First, extract the element that is known to be an edge array. */
-				GrB_Matrix_extractElement(&edge_id, TR, dest_id, src_id);
+				GrB_Matrix_extractElement_UINT64(&edge_id, TR, dest_id, src_id);
 				multi_edges = (EdgeID *)edge_id;
 				int multi_edge_count = array_len(multi_edges);
 				multi_edges[i] = multi_edges[multi_edge_count - 1];
@@ -1052,7 +1052,7 @@ static void _BulkDeleteEdges(Graph *g, Edge *edges, size_t edge_count) {
 				if(array_len(multi_edges) == 1) {
 					edge_id = multi_edges[0];
 					array_free(multi_edges);
-					GrB_Matrix_setElement(TR, SET_MSB(edge_id), dest_id, src_id);
+					GrB_Matrix_setElement_UINT64(TR, SET_MSB(edge_id), dest_id, src_id);
 				}
 			}
 		}
@@ -1087,7 +1087,7 @@ static void _BulkDeleteEdges(Graph *g, Edge *edges, size_t edge_count) {
 					// tM = tM & !mask.
 					GrB_Matrix_apply(tM, mask, GrB_NULL, GrB_IDENTITY_UINT64, tM, desc);
 				}
-				GrB_free(&mask);
+				GrB_Matrix_free(&mask);
 			}
 
 			// Collect remaining edges. remaining_mask = remaining_mask + R.
@@ -1107,8 +1107,8 @@ static void _BulkDeleteEdges(Graph *g, Edge *edges, size_t edge_count) {
 		// t_adj_matrix = t_adj_matrix & remaining_mask.
 		GrB_Matrix_apply(t_adj_matrix, remaining_mask, GrB_NULL, GrB_IDENTITY_BOOL, t_adj_matrix, desc);
 
-		GrB_free(&remaining_mask);
-		GrB_free(&desc);
+		GrB_Matrix_free(&remaining_mask);
+		GrB_Descriptor_free(&desc);
 	}
 }
 

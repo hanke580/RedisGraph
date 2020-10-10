@@ -144,7 +144,8 @@ static void _Config_SetToDefaults(RedisModuleCtx *ctx) {
 	config.thread_count = (CPUCount != -1) ? CPUCount : 1;
 
 	// Use the GraphBLAS-defined number of OpenMP threads by default.
-	GxB_get(GxB_NTHREADS, &config.omp_thread_count);
+
+	GxB_Global_Option_get(static_cast<GxB_Option_Field>(GxB_NTHREADS), &config.omp_thread_count);
 
 	if(Redis_Version_GreaterOrEqual(6, 0, 0)) {
 		// The default entity count of virtual keys for server versions >= 6 is set by macro.
