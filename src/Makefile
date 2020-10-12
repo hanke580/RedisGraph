@@ -2,7 +2,7 @@
 uname_S := $(shell sh -c 'uname -s 2>/dev/null || echo not')
 
 # Use cpp compiler
-CC_ = g++ -W
+CC_ = g++
 
 # Paths to deps.
 RAX_DIR = ../deps/rax
@@ -20,7 +20,7 @@ endif
 # Default CFLAGS
 CFLAGS = \
 	-Wall -Wno-unused-function -Wno-unused-variable -Wno-unused-result \
-	-fPIC -fcommon -fopenmp -fpermissive \
+	-fPIC -fcommon -fopenmp -fpermissive -w\
 	-D_GNU_SOURCE -DREDIS_MODULE_TARGET -DREDISMODULE_EXPERIMENTAL_API -DXXH_STATIC_LINKING_ONLY
 CFLAGS += $(DEBUGFLAGS)
 
