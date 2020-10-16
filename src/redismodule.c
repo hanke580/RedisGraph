@@ -262,8 +262,6 @@ int REDISMODULE_API_FUNC(RedisModule_Scan)(RedisModuleCtx *ctx, RedisModuleScanC
 int REDISMODULE_API_FUNC(RedisModule_ScanKey)(RedisModuleKey *key, RedisModuleScanCursor *cursor,
 											  RedisModuleScanKeyCB fn, void *privdata);
 /* Experimental APIs */
-#ifdef REDISMODULE_EXPERIMENTAL_API
-#define REDISMODULE_EXPERIMENTAL_API_VERSION 3
 RedisModuleBlockedClient *REDISMODULE_API_FUNC(RedisModule_BlockClient)(RedisModuleCtx *ctx,
 																		RedisModuleCmdFunc reply_callback, RedisModuleCmdFunc timeout_callback,
 																		void (*free_privdata)(RedisModuleCtx *, void *), long long timeout_ms);
